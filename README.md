@@ -28,6 +28,27 @@ Aplikacja umożliwia:
 
 ---
 
+## Zrzuty ekranu aplikacji
+
+### Ekran główny
+![9f5c7d43-1b23-45d4-9974-57dbd771b564](https://github.com/user-attachments/assets/59407dfe-ec94-45e6-bcf8-69620d6aaf46)
+
+
+### Dodawanie zadania
+![abe14a39-3edf-4ff8-9711-24f4356c55c2](https://github.com/user-attachments/assets/2e0b04e9-5fec-4b86-a9c7-644b470f9047)
+
+
+### Szczegóły zadania
+![807a7fcd-56a8-445a-9170-4e0d8bd899d0](https://github.com/user-attachments/assets/d1e86cea-2b9a-4994-81b0-1235e58d254e)
+
+
+### Filtry i sortowanie
+![77ed762e-5bd3-4ef0-90ca-61e35ae23fa1](https://github.com/user-attachments/assets/cdb65f97-8e69-4e3e-b2ab-96eb704fa703)
+
+
+
+---
+
 ## Technologie
 Projekt wykonano przy użyciu:
 
