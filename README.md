@@ -31,7 +31,7 @@ Aplikacja umożliwia:
 ## Zrzuty ekranu aplikacji
 
 ### Ekran główny
-<img src="![9f5c7d43-1b23-45d4-9974-57dbd771b564](https://github.com/user-attachments/assets/59407dfe-ec94-45e6-bcf8-69620d6aaf46)" width="320"/>
+![9f5c7d43-1b23-45d4-9974-57dbd771b564](https://github.com/user-attachments/assets/59407dfe-ec94-45e6-bcf8-69620d6aaf46)
 
 
 ### Dodawanie zadania
