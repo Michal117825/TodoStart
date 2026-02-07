@@ -64,5 +64,5 @@ Projekt wykonany indywidualnie przez:
 
 ---
 
-## 🎓 Rok akademicki
+## Rok akademicki
 **2025 / 2026**
