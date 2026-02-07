@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -47,7 +48,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -62,7 +62,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -146,7 +145,6 @@ fun AppRoot() {
     var nextId by remember { mutableLongStateOf(1L) }
     var loaded by remember { mutableStateOf(false) }
 
-    // Filtry / sort / UI
     var showOnlyUndone by rememberSaveable { mutableStateOf(false) }
     var onlyWithDueDate by rememberSaveable { mutableStateOf(false) }
     var sortBy by rememberSaveable { mutableStateOf(SortBy.DUE_DATE) }
@@ -164,7 +162,6 @@ fun AppRoot() {
         }
     }
 
-    // Load + schedule reminders
     LaunchedEffect(Unit) {
         val loadedTasks = TaskStorage.load(context)
         tasks = loadedTasks
@@ -210,15 +207,8 @@ fun AppRoot() {
         persist(tasks.filterNot { it.id == id })
     }
 
-    // Filter + sort
     val filteredSorted = remember(
-        tasks,
-        showOnlyUndone,
-        onlyWithDueDate,
-        sortBy,
-        sortDirection,
-        query,
-        priorityFilterCode
+        tasks, showOnlyUndone, onlyWithDueDate, sortBy, sortDirection, query, priorityFilterCode
     ) {
         val q = query.trim().lowercase(Locale.getDefault())
 
@@ -231,7 +221,7 @@ fun AppRoot() {
                         it.description.lowercase(Locale.getDefault()).contains(q)
             }
 
-        val pf = when (priorityFilterCode) {
+        val pf: PriorityFilter = when (priorityFilterCode) {
             "LOW" -> PriorityFilter.ONLY(Priority.LOW)
             "MEDIUM" -> PriorityFilter.ONLY(Priority.MEDIUM)
             "HIGH" -> PriorityFilter.ONLY(Priority.HIGH)
@@ -279,10 +269,10 @@ fun AppRoot() {
                 onQueryChange = { query = it },
 
                 priorityFilter = priorityFilter,
-                onPriorityFilterChange = { pf2 ->
-                    priorityFilterCode = when (pf2) {
+                onPriorityFilterChange = { pf ->
+                    priorityFilterCode = when (pf) {
                         PriorityFilter.ALL -> "ALL"
-                        is PriorityFilter.ONLY -> when (pf2.priority) {
+                        is PriorityFilter.ONLY -> when (pf.priority) {
                             Priority.LOW -> "LOW"
                             Priority.MEDIUM -> "MEDIUM"
                             Priority.HIGH -> "HIGH"
@@ -327,6 +317,7 @@ fun AppRoot() {
             )
         }
 
+        // ✅ POPRAWIONY BLOK (wcześniej był błąd w onBack)
         composable(
             route = Screen.Details.route,
             arguments = listOf(navArgument("taskId") { type = NavType.LongType })
@@ -380,16 +371,14 @@ fun TaskListScreen(
     onAddClick: () -> Unit,
     onTaskClick: (taskId: Long) -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val config = LocalConfiguration.current
+    val isLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val dateFmt = remember { SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()) }
-
-    // ✅ spójne tła
     val appBg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.18f)
     val cardBg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f)
 
-    var panelOpen by remember { mutableStateOf(false) }
+    var filtersOpen by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     fun priorityLabel(pf: PriorityFilter): String = when (pf) {
@@ -417,22 +406,19 @@ fun TaskListScreen(
         "$total zadań$f"
     }
 
-    // ✅ Panel przeniesiony do BottomSheet + SCROLL (to jest ta poprawka)
-    if (panelOpen) {
+    if (filtersOpen) {
         ModalBottomSheet(
-            onDismissRequest = { panelOpen = false },
+            onDismissRequest = { filtersOpen = false },
             sheetState = sheetState
         ) {
-            val scrollState = rememberScrollState()
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Text("Szukaj / Filtry / Sortowanie", style = MaterialTheme.typography.titleLarge)
+                Text("Szukaj, filtry i sortowanie", style = MaterialTheme.typography.titleLarge)
 
                 OutlinedTextField(
                     value = query,
@@ -482,15 +468,13 @@ fun TaskListScreen(
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    OutlinedButton(onClick = onClearFilters) { Text("Wyczyść") }
-                    TextButton(onClick = { panelOpen = false }) { Text("Zamknij") }
+                HorizontalDivider()
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    TextButton(onClick = onClearFilters) { Text("Wyczyść wszystko") }
+                    TextButton(onClick = { filtersOpen = false }) { Text("Zamknij") }
                 }
 
-                // ✅ żeby dół się nie ucinał
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
@@ -498,26 +482,16 @@ fun TaskListScreen(
 
     Scaffold(
         topBar = {
-            if (isLandscape) {
-                TopAppBar(
-                    title = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Lista zadań • ${undoneTasks.size + doneTasks.size}",
+                            text = "Lista zadań",
+                            style = if (isLandscape) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                    }
-                )
-            } else {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "Lista zadań",
-                                style = MaterialTheme.typography.titleLarge,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                        if (!isLandscape) {
                             Text(
                                 text = subtitle,
                                 style = MaterialTheme.typography.labelMedium,
@@ -525,13 +499,12 @@ fun TaskListScreen(
                             )
                         }
                     }
-                )
-            }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClick) { Text("+") }
-        },
-        floatingActionButtonPosition = FabPosition.End
+        }
     ) { padding ->
 
         Surface(
@@ -543,8 +516,8 @@ fun TaskListScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(if (isLandscape) 10.dp else 16.dp),
+                verticalArrangement = Arrangement.spacedBy(if (isLandscape) 8.dp else 12.dp)
             ) {
 
                 if (!isLandscape) {
@@ -573,7 +546,7 @@ fun TaskListScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 OutlinedButton(
-                                    onClick = { panelOpen = true },
+                                    onClick = { filtersOpen = true },
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                                 ) {
                                     Text(if (activeFiltersCount > 0) "Filtry ($activeFiltersCount)" else "Filtry")
@@ -584,10 +557,13 @@ fun TaskListScreen(
                                 Text(
                                     text = "Priorytet: ${priorityLabel(priorityFilter)}",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
                                 )
 
-                                Spacer(modifier = Modifier.weight(1f))
+                                Spacer(modifier = Modifier.width(10.dp))
 
                                 TextButton(
                                     onClick = onClearFilters,
@@ -610,23 +586,22 @@ fun TaskListScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             OutlinedButton(
-                                onClick = { panelOpen = true },
+                                onClick = { filtersOpen = true },
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                             ) {
-                                Text(if (activeFiltersCount > 0) "Panel ($activeFiltersCount)" else "Panel")
+                                Text(if (activeFiltersCount > 0) "Szukaj i filtry ($activeFiltersCount)" else "Szukaj i filtry")
                             }
 
                             Spacer(modifier = Modifier.width(10.dp))
 
                             Text(
-                                text = priorityLabel(priorityFilter),
-                                style = MaterialTheme.typography.bodyMedium,
+                                text = subtitle,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
                             )
-
-                            Spacer(modifier = Modifier.weight(1f))
 
                             TextButton(
                                 onClick = onClearFilters,
@@ -637,9 +612,11 @@ fun TaskListScreen(
                 }
 
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 90.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentPadding = PaddingValues(bottom = 96.dp),
+                    verticalArrangement = Arrangement.spacedBy(if (isLandscape) 8.dp else 10.dp)
                 ) {
                     if (undoneTasks.isEmpty() && doneTasks.isEmpty()) {
                         item { EmptyStateCard(cardBg) }
@@ -671,7 +648,7 @@ fun TaskListScreen(
                                     enter = fadeIn(tween(150)) + expandVertically(tween(150)),
                                     exit = fadeOut(tween(120)) + shrinkVertically(tween(120))
                                 ) {
-                                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Column(verticalArrangement = Arrangement.spacedBy(if (isLandscape) 8.dp else 10.dp)) {
                                         doneTasks.forEach { task ->
                                             TaskCard(
                                                 task = task,
@@ -779,7 +756,10 @@ fun TaskCard(
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(priorityEmoji(task.priority))
                         Spacer(modifier = Modifier.width(8.dp))
 
@@ -787,16 +767,26 @@ fun TaskCard(
                             text = task.title,
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
                         )
 
                         Spacer(modifier = Modifier.width(10.dp))
 
-                        PriorityBadgeChip(task.priority)
+                        IconButton(onClick = { onDelete(task.id) }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Usuń")
+                        }
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    PriorityBadgeChip(
+                        priority = task.priority,
+                        modifier = Modifier.widthIn(min = 110.dp)
+                    )
+
                     if (task.description.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = task.description,
                             style = MaterialTheme.typography.bodyMedium,
@@ -810,13 +800,16 @@ fun TaskCard(
                         Spacer(modifier = Modifier.height(10.dp))
                         AssistChip(
                             onClick = { },
-                            label = { Text("Termin: ${dateFmt.format(task.dueAtMillis)}") }
+                            label = {
+                                Text(
+                                    "Termin: ${dateFmt.format(task.dueAtMillis)}",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    softWrap = false
+                                )
+                            }
                         )
                     }
-                }
-
-                IconButton(onClick = { onDelete(task.id) }) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Usuń")
                 }
             }
         }
@@ -837,7 +830,7 @@ fun priorityStripeColor(priority: Priority): Color = when (priority) {
 }
 
 @Composable
-fun PriorityBadgeChip(priority: Priority) {
+fun PriorityBadgeChip(priority: Priority, modifier: Modifier = Modifier) {
     val label = when (priority) {
         Priority.LOW -> "Niski"
         Priority.MEDIUM -> "Średni"
@@ -852,7 +845,15 @@ fun PriorityBadgeChip(priority: Priority) {
 
     AssistChip(
         onClick = { },
-        label = { Text(label) },
+        modifier = modifier,
+        label = {
+            Text(
+                label,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                softWrap = false
+            )
+        },
         colors = AssistChipDefaults.assistChipColors(
             containerColor = bg,
             labelColor = fg
