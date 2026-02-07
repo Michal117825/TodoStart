@@ -1,57 +1,57 @@
-# TodoStart – aplikacja To-Do (Android)
+# 📋 Aplikacja To-Do List na Android
 
-Aplikacja mobilna na Androida służąca do zarządzania listą zadań do wykonania.  
-Projekt wykonany w Kotlinie z użyciem Jetpack Compose.
+## 📌 Opis projektu
+Projekt przedstawia aplikację mobilną na system Android służącą do zarządzania listą zadań (To-Do List).  
+Aplikacja umożliwia tworzenie, edytowanie i usuwanie zadań oraz ustawianie terminów i przypomnień.
 
-## Funkcje aplikacji
-
-✅ Dodawanie zadań  
-✅ Usuwanie zadań  
-✅ Oznaczanie zadania jako wykonane  
-✅ Szczegóły zadania (opis, priorytet, termin)  
-✅ Przypomnienia o zadaniach  
-✅ Priorytety zadań (niski / średni / wysoki)  
-✅ Wyszukiwanie zadań  
-✅ Filtrowanie zadań  
-✅ Sortowanie zadań  
-✅ Sekcja zadań wykonanych  
-✅ Obsługa obrotu ekranu  
-✅ Zapisywanie danych lokalnie
+Projekt został wykonany jako projekt zaliczeniowy z przedmiotu Programowanie aplikacji mobilnych.
 
 ---
 
-## Technologie
+## ⚙️ Funkcjonalności aplikacji
+Aplikacja umożliwia:
 
-Projekt wykorzystuje:
+- dodawanie nowych zadań
+- usuwanie zadań
+- oznaczanie zadań jako wykonane
+- edycję szczegółów zadania
+- dodawanie opisu zadania
+- ustawianie priorytetu zadania
+- ustawianie terminu wykonania
+- przypomnienia o zadaniach
+- filtrowanie i wyszukiwanie zadań
+- sortowanie zadań
+- zapis danych lokalnie na urządzeniu
+- obsługę obrotu ekranu
+- instalację aplikacji jako APK
+
+---
+
+## 🛠 Technologie
+Projekt wykonano przy użyciu:
 
 - Kotlin
+- Android Studio
 - Jetpack Compose
-- Material 3
-- Navigation Compose
-- AlarmManager (przypomnienia)
-- Lokalny zapis danych (JSON / storage)
+- Material Design 3
+- Android SDK
 
 ---
 
-## Struktura aplikacji
+## ▶️ Uruchomienie projektu
+1. Otworzyć projekt w Android Studio.
+2. Podłączyć urządzenie z Androidem lub uruchomić emulator.
+3. Kliknąć **Run** w Android Studio.
 
-Aplikacja składa się z trzech głównych ekranów:
-
-1. Lista zadań
-2. Dodawanie zadania
-3. Szczegóły zadania
-
----
-
-## Uruchomienie projektu
-
-1. Otwórz projekt w Android Studio
-2. Poczekaj na synchronizację Gradle
-3. Podłącz telefon lub emulator
-4. Kliknij **Run**
+Lub zainstalować plik APK bezpośrednio na telefonie.
 
 ---
 
-## Autor 
+## 📱 Autor
+Projekt wykonany indywidualnie przez:
+Michał Ratajczak
 
-Projekt wykonany jako projekt zaliczeniowy.
+---
+
+## 📅 Rok akademicki
+2025/2026
