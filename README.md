@@ -1,6 +1,6 @@
-# 📋 Aplikacja To-Do List na Android
+# Aplikacja To-Do List na Android
 
-## 📌 Opis projektu
+## Opis projektu
 Projekt przedstawia aplikację mobilną na system Android służącą do zarządzania listą zadań (To-Do List).  
 Aplikacja umożliwia tworzenie, edytowanie i usuwanie zadań oraz ustawianie terminów i przypomnień.
 
@@ -8,7 +8,7 @@ Projekt został wykonany jako projekt zaliczeniowy z przedmiotu Programowanie ap
 
 ---
 
-## ⚙️ Funkcjonalności aplikacji
+## Funkcjonalności aplikacji
 Aplikacja umożliwia:
 
 - dodawanie nowych zadań
@@ -27,7 +27,7 @@ Aplikacja umożliwia:
 
 ---
 
-## 🛠 Technologie
+## Technologie
 Projekt wykonano przy użyciu:
 
 - Kotlin
@@ -38,7 +38,7 @@ Projekt wykonano przy użyciu:
 
 ---
 
-## ▶️ Uruchomienie projektu
+## Uruchomienie projektu
 1. Otworzyć projekt w Android Studio.
 2. Podłączyć urządzenie z Androidem lub uruchomić emulator.
 3. Kliknąć **Run** w Android Studio.
@@ -47,11 +47,11 @@ Lub zainstalować plik APK bezpośrednio na telefonie.
 
 ---
 
-## 📱 Autor
+## Autor
 Projekt wykonany indywidualnie przez:
 Michał Ratajczak
 
 ---
 
-## 📅 Rok akademicki
+## Rok akademicki
 2025/2026
